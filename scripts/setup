@@ -32,7 +32,7 @@ fi
 
 #------------------Clone godot-cpp downstream repo------------------
 printf "${BLUE}Checking if godot-cpp downstream repo is already present...${NC}\n"
-[[ ! -d godot-cpp ]] && git submodule add --force -b 4.2 https://github.com/godotengine/godot-cpp
+[[ ! -d godot-cpp ]] && git submodule add -b 4.2 https://github.com/godotengine/godot-cpp
 git -C godot-cpp submodule update --init
 
 #------------------Build godot-cpp static library and gen folder------------------

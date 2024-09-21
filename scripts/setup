@@ -1,0 +1,43 @@
+#!/bin/bash -e
+
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+#------------------Detect Operating System------------------
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    os=linux
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    os=macos
+fi
+
+#------------------Install Homebrew Package Manager----------------
+printf "${BLUE}Checking if homebrew package manager already installed...${NC}\n"
+if [[ "$os" == macos ]] && ! brew --version &> /dev/null ; then
+    # Download brew installation
+    printf "${BLUE}Homebrew Package manager is not found. Installing with from the internet...${NC}\n"
+    curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh
+    
+    # Update cmd path
+    export PATH="/usr/local/opt/python/libexec/bin:$PATH" >> ~/.profile
+fi
+
+#------------------Install Scons for building C++ libraries----------------
+printf "${BLUE}Checking if Scons is installed...${NC}\n"
+if ! python3 --version &> /dev/null ; then
+    # Use homebrew to install Python 
+    brew install scons
+fi
+
+#------------------Clone godot-cpp downstream repo------------------
+printf "${BLUE}Checking if godot-cpp downstream repo is already present...${NC}\n"
+[[ ! -d godot-cpp ]] && git submodule add --force -b 4.2 https://github.com/godotengine/godot-cpp
+git -C godot-cpp submodule update --init
+
+#------------------Build godot-cpp static library and gen folder------------------
+scons -C godot-cpp platform="$os"
+
+printf "${GREEN}\n=================================================================="
+printf "\nLEO GDEXTENSION SETUP SUCCESSFUL!"
+printf "\n==================================================================\n\n${NC}"
